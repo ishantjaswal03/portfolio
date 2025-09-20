@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ishant Jaswal - Cybersecurity Analyst</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0a0a;
+            background-image:
+                linear-gradient(rgba(16, 185, 129, 0.07) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(16, 185, 129, 0.07) 1px, transparent 1px);
+            background-size: 30px 30px;
+            color: #e5e7eb;
+            overflow-x: hidden; /* Prevent horizontal scroll from background elements */
+        }
+        /* Hide default cursor on devices with fine pointers */
+        @media (pointer: fine) {
+            body, a, button {
+                cursor: none;
+            }
+        }
+        .glass-effect {
+            background: rgba(17, 24, 39, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(16, 185, 129, 0.1);
+            position: relative; /* For glow effect */
+            overflow: hidden; /* For glow effect */
+        }
+        /* Interactive Glow Effect for Cards */
+        .glass-effect::before {
+            content: '';
+            position: absolute;
+            top: var(--mouse-y, 50%);
+            left: var(--mouse-x, 50%);
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle at center, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0) 70%);
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.4s ease-out;
+            pointer-events: none;
+        }
+        .glass-effect:hover::before {
+            opacity: 1;
+        }
+        .glow-effect-soft {
+             box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+        }
+        /* New: Styles for the 3D tiltable card */
+        .tiltable {
+            transition: transform 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+            transform-style: preserve-3d;
+        }
+        .scroll-animation {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .scroll-animation.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .font-mono {
+            font-family: 'Roboto Mono', monospace;
+        }
+        /* Typing animation */
+        #typing-text::after {
+            content: '|';
+            animation: blink 0.7s infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+        /* Animated background dots */
+        .bg-dot {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background-color: rgba(16, 185, 129, 0.5);
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
+            animation: move-dot 25s linear infinite;
+            z-index: -1;
+        }
+        @keyframes move-dot {
+            from { transform: translate(0, 0); }
+            to { transform: translate(var(--tx, 0), var(--ty, 0)); }
+        }
+        /* Scanline Animation */
+        .animate-scanline {
+            animation: scan 3s ease-in-out infinite;
+        }
+        @keyframes scan {
+            0% { transform: translateY(-20%); }
+            50% { transform: translateY(100%); }
+            100% { transform: translateY(-20%); }
+        }
+        /* Blinking cursor for terminal animation */
+        .blinking-cursor::after {
+            content: '▋';
+            animation: blink 1s step-end infinite;
+            color: #10b981; /* emerald-500 */
+            margin-left: 0.25rem;
+        }
+        /* Custom Cursor Styles */
+        #cursor-dot, #cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            display: none; /* Hidden by default, enabled by JS on mouse move */
+        }
+        #cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #10b981; /* emerald-500 */
+        }
+        #cursor-outline {
+            width: 40px;
+            height: 40px;
+            border: 2px solid rgba(16, 185, 129, 0.7);
+            transition: transform 0.2s ease-out, width 0.3s ease-out, height 0.3s ease-out, border-color 0.3s ease-out;
+        }
+        #cursor-outline.hover {
+            transform: translate(-50%, -50%) scale(1.5);
+            border-color: rgba(16, 185, 129, 0.4);
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- Custom Cursor Elements -->
+    <div id="cursor-dot"></div>
+    <div id="cursor-outline"></div>
+
+    <!-- Animated Background Dots -->
+    <div id="bg-dots-container"></div>
+
+
+    <!-- Header Navigation -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass-effect">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="text-xl font-bold text-emerald-400 font-mono">IJ_</a>
+            <nav class="hidden md:flex space-x-8">
+                <a href="#about" class="hover:text-emerald-400 transition-colors duration-300">About Me</a>
+                <a href="#projects" class="hover:text-emerald-400 transition-colors duration-300">Projects</a>
+                <a href="#contact" class="hover:text-emerald-400 transition-colors duration-300">Contact</a>
+            </nav>
+            <a href="#resume" class="hidden md:inline-block px-4 py-2 border border-emerald-400 text-emerald-400 rounded-md hover:bg-emerald-400 hover:text-gray-900 transition-colors duration-300">Resume</a>
+             <button id="mobile-menu-button" class="md:hidden text-2xl">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden px-6 pb-4">
+            <a href="#about" class="block py-2 hover:text-emerald-400">About Me</a>
+            <a href="#projects" class="block py-2 hover:text-emerald-400">Projects</a>
+            <a href="#contact" class="block py-2 hover:text-emerald-400">Contact</a>
+            <a href="#resume" class="block mt-2 py-2 text-center border border-emerald-400 text-emerald-400 rounded-md hover:bg-emerald-400 hover:text-gray-900">Resume</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 pt-24 md:pt-32">
+
+        <!-- Hero Section -->
+        <section class="min-h-[80vh] flex flex-col md:flex-row items-center justify-center text-center md:text-left">
+            <div class="md:w-3/5 md:pr-10">
+                <h1 class="font-bold leading-tight">
+                    <span class="block text-gray-300 text-4xl md:text-6xl">ISHANT JASWAL</span>
+                    <span id="typing-text" class="block text-emerald-400 h-16 md:h-20 font-mono text-2xl sm:text-3xl md:text-4xl lg:text-5xl whitespace-nowrap"></span>
+                </h1>
+                <p class="mt-4 text-lg text-gray-400 max-w-xl mx-auto md:mx-0 text-justify">
+                    A specialist in proactive defense and resilient systems, focused on securing digital frontiers through vigilant threat analysis and robust incident response.
+                </p>
+                <div class="mt-8 flex justify-center md:justify-start space-x-4">
+                    <a href="#projects" class="px-6 py-3 bg-emerald-500 text-gray-900 font-semibold rounded-lg hover:bg-emerald-400 transition-all duration-300 hover:shadow-[0_0_15px_rgba(16,185,129,0.5)] hover:-translate-y-1">
+                        View My Projects
+                    </a>
+                    <a href="https://www.linkedin.com/in/ishant-jaswal-7341b7372" target="_blank" class="inline-flex items-center px-6 py-3 border-2 border-gray-500 text-gray-300 font-semibold rounded-lg hover:border-emerald-400 hover:text-emerald-400 transition-all duration-300 hover:-translate-y-1">
+                        Connect on
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-2 h-5 w-5"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0 -2 -2a2 2 0 0 0 -2 2v7h-4v-7a6 6 0 0 1 6 -6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+                    </a>
+                </div>
+            </div>
+            <div class="md:w-2/5 mt-10 md:mt-0 flex justify-center">
+                 <div class="relative w-72 h-72 md:w-96 md:h-96 group">
+                    <div class="absolute inset-0 border-2 border-emerald-400 rounded-full animate-pulse transition-transform duration-500 group-hover:scale-105"></div>
+                    <div class="absolute inset-2 border-2 border-emerald-400/50 rounded-full animate-pulse [animation-delay:0.5s] transition-transform duration-500 group-hover:scale-110"></div>
+                    <div class="relative w-full h-full rounded-full overflow-hidden glow-effect-soft">
+                        <img src="profile_picture.png" alt="Ishant Jaswal" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute left-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                             <div class="absolute top-0 w-full h-1 bg-emerald-300/70 animate-scanline" style="filter: blur(4px);"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Performance Metrics Section -->
+        <section id="metrics" class="py-16 scroll-animation">
+            <div class="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <div class="glass-effect rounded-lg p-6 transition-all duration-300 hover:-translate-y-2 hover:border-emerald-400/50">
+                    <h3 class="text-4xl font-bold text-emerald-400 mb-2 font-mono" data-target="7500">0+</h3>
+                    <p class="text-gray-400">Assets Managed</p>
+                </div>
+                <div class="glass-effect rounded-lg p-6 transition-all duration-300 hover:-translate-y-2 hover:border-emerald-400/50">
+                    <h3 class="text-4xl font-bold text-emerald-400 mb-2 font-mono" data-target="15">0%</h3>
+                    <p class="text-gray-400">Threat Detection Boost</p>
+                </div>
+                <div class="glass-effect rounded-lg p-6 transition-all duration-300 hover:-translate-y-2 hover:border-emerald-400/50">
+                    <h3 class="text-4xl font-bold text-emerald-400 mb-2 font-mono" data-target="25">0%</h3>
+                    <p class="text-gray-400">Critical CVEs Reduced</p>
+                </div>
+                <div class="glass-effect rounded-lg p-6 transition-all duration-300 hover:-translate-y-2 hover:border-emerald-400/50">
+                    <h3 class="text-4xl font-bold text-emerald-400 mb-2 font-mono" data-target="20">0%</h3>
+                    <p class="text-gray-400">SOC Response Time Cut</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Me Section -->
+        <section id="about" class="py-20 scroll-animation">
+            <h2 class="text-3xl font-bold text-center mb-12">About Me</h2>
+            <div class="max-w-4xl mx-auto glass-effect rounded-lg p-8 grid md:grid-cols-2 gap-x-12 gap-y-8 items-start tiltable">
+                <div>
+                    <h3 class="text-xl font-semibold text-emerald-400 mb-4">My Story</h3>
+                    <p class="text-gray-400 text-justify">
+                        A passionate Cybersecurity Analyst thriving in fast-paced SOC environments. My core experience involves tuning SIEM systems, managing the end-to-end vulnerability lifecycle for over 7,500 assets, and proactive threat hunting with EDR tools. I am driven by a commitment to robust incident response and continuous learning to defend against emerging threats.
+                    </p>
+                </div>
+                <div class="space-y-8">
+                    <div>
+                        <h3 class="text-xl font-semibold text-emerald-400 mb-4">Core Skills</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="flex items-center space-x-3">
+                                <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                                <span class="text-gray-300">SIEM Tuning (Securnix)</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                <span class="text-gray-300">EDR (CrowdStrike)</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                <span class="text-gray-300">Vulnerability Management</span>
+                            </div>
+                             <div class="flex items-center space-x-3">
+                               <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                <span class="text-gray-300">Proactive Threat Hunting</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold text-emerald-400 mb-4">Certifications</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-3">
+                                <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+                                <span class="text-gray-300">Qualys VMDR Specialist</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+                                <span class="text-gray-300">Qualys Cloud Agent Specialist</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+                                <span class="text-gray-300">Linux Fundamentals</span>
+                            </div>
+                             <div class="flex items-center space-x-3">
+                                <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+                                <span class="text-gray-300">Cisco Junior Cybersecurity Analyst</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects" class="py-20 scroll-animation">
+            <h2 class="text-3xl font-bold text-center mb-12">Projects</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                <!-- Project Card 1 -->
+                <div class="glass-effect rounded-lg p-6 flex flex-col group hover:border-emerald-400/50 transition-all duration-300 hover:-translate-y-2">
+                    <h3 class="text-2xl font-semibold text-emerald-400 mb-3">SIEM Tuning & Threat Detection</h3>
+                    <p class="text-gray-400 mb-4 flex-grow text-justify">Fine-tuned Securnix SIEM rules while analyzing over 500 daily alerts, which successfully increased threat detection accuracy by 15%. Also coordinated patching efforts to reduce false positives by 20%.</p>
+                    <div class="mb-4">
+                        <span class="inline-block bg-gray-700 text-emerald-300 text-sm font-medium mr-2 mb-2 px-2.5 py-0.5 rounded-full">Securnix SIEM</span>
+                        <span class="inline-block bg-gray-700 text-emerald-300 text-sm font-medium mr-2 mb-2 px-2.5 py-0.5 rounded-full">Threat Analysis</span>
+                        <span class="inline-block bg-gray-700 text-emerald-300 text-sm font-medium mr-2 mb-2 px-2.5 py-0.5 rounded-full">Incident Response</span>
+                    </div>
+                </div>
+
+                <!-- Project Card 2 -->
+                <div class="glass-effect rounded-lg p-6 flex flex-col group hover:border-emerald-400/50 transition-all duration-300 hover:-translate-y-2">
+                    <h3 class="text-2xl font-semibold text-emerald-400 mb-3">Vulnerability Lifecycle Management</h3>
+                    <p class="text-gray-400 mb-4 flex-grow text-justify">Led the full vulnerability lifecycle management for over 7,500 assets using Qualys VMDR and its Cloud Agent. This initiative successfully reduced critical CVEs by 25% across the enterprise.</p>
+                    <div class="mb-4">
+                        <span class="inline-block bg-gray-700 text-emerald-300 text-sm font-medium mr-2 mb-2 px-2.5 py-0.5 rounded-full">Qualys VMDR</span>
+                        <span class="inline-block bg-gray-700 text-emerald-300 text-sm font-medium mr-2 mb-2 px-2.5 py-0.5 rounded-full">Vulnerability Management</span>
+                        <span class="inline-block bg-gray-700 text-emerald-300 text-sm font-medium mr-2 mb-2 px-2.5 py-0.5 rounded-full">Endpoint Security</span>
+                    </div>
+                </div>
+
+                <!-- Project Card 3 -->
+                <div class="glass-effect rounded-lg p-6 flex flex-col group hover:border-emerald-400/50 transition-all duration-300 hover:-translate-y-2">
+                    <h3 class="text-2xl font-semibold text-emerald-400 mb-3">SOC Operations & Threat Analysis Intern</h3>
+                    <p class="text-gray-400 mb-4 flex-grow text-justify">Gained hands-on exposure to SOC workflows including incident triage, escalation protocols, and reporting. Contributed to vulnerability research and developed security documentation, strengthening knowledge of the full incident response lifecycle.</p>
+                    <div class="mb-4">
+                        <span class="inline-block bg-gray-700 text-emerald-300 text-sm font-medium mr-2 mb-2 px-2.5 py-0.5 rounded-full">SOC Workflows</span>
+                        <span class="inline-block bg-gray-700 text-emerald-300 text-sm font-medium mr-2 mb-2 px-2.5 py-0.5 rounded-full">Incident Triage</span>
+                        <span class="inline-block bg-gray-700 text-emerald-300 text-sm font-medium mr-2 mb-2 px-2.5 py-0.5 rounded-full">Vulnerability Research</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Resume Download Section -->
+        <section id="resume" class="py-20 text-center scroll-animation">
+             <div class="max-w-3xl mx-auto glass-effect rounded-lg p-8 text-left">
+                <div class="flex items-center mb-4">
+                    <span class="h-3 w-3 bg-red-500 rounded-full mr-2"></span>
+                    <span class="h-3 w-3 bg-yellow-500 rounded-full mr-2"></span>
+                    <span class="h-3 w-3 bg-green-500 rounded-full"></span>
+                </div>
+                <div id="terminal-output" class="font-mono text-sm text-emerald-400 min-h-[140px] md:min-h-[120px]">
+                    <!-- Terminal animation will appear here -->
+                </div>
+                <div id="resume-download-area" class="mt-6 text-center opacity-0 transition-opacity duration-700">
+                     <h2 class="text-3xl font-bold mb-2">My Resume</h2>
+                     <p class="text-gray-400 mb-6 max-w-2xl mx-auto">A comprehensive overview of my skills, experience, and qualifications.</p>
+                     <a href="Ishant_Jaswal_Resume.pdf" download="Resume.pdf" class="inline-block px-8 py-4 bg-emerald-500 text-gray-900 font-bold rounded-lg hover:bg-emerald-400 transition-all duration-300 hover:shadow-[0_0_15px_rgba(16,185,129,0.5)] text-lg">
+                         Download (PDF)
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <!-- Footer -->
+    <footer id="contact" class="border-t border-emerald-400/10 mt-20">
+        <div class="container mx-auto px-6 py-8 text-center text-gray-400">
+            <p class="text-2xl font-semibold mb-2">Get In Touch</p>
+            <a href="mailto:ishantjaswal03@gmail.com" class="text-lg text-emerald-400 hover:underline">ishantjaswal03@gmail.com</a>
+            
+            <p class="mt-4 text-gray-500">From Recon to Response – I Cover It All.</p>
+
+            <p class="mt-8">&copy; 2025 Ishant Jaswal. All rights reserved.</p>
+        </div>
+    </footer>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Scroll animations & Metric Counter
+            const scrollAnimations = document.querySelectorAll('.scroll-animation');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        
+                        if (entry.target.id === 'metrics' && !entry.target.dataset.animated) {
+                            const counters = entry.target.querySelectorAll('[data-target]');
+                            counters.forEach(counter => {
+                                const target = +counter.getAttribute('data-target');
+                                const originalText = counter.innerText;
+                                const suffix = originalText.replace(/[0-9]/g, '');
+                                const duration = 2000;
+                                let start = null;
+
+                                function step(timestamp) {
+                                    if (!start) start = timestamp;
+                                    const progress = Math.min((timestamp - start) / duration, 1);
+                                    counter.innerText = Math.floor(progress * target) + suffix;
+                                    if (progress < 1) {
+                                        window.requestAnimationFrame(step);
+                                    }
+                                }
+                                window.requestAnimationFrame(step);
+                            });
+                            entry.target.dataset.animated = 'true';
+                        }
+                        
+                        // Terminal Animation for Resume Section
+                        if (entry.target.id === 'resume' && !entry.target.dataset.animated) {
+                            entry.target.dataset.animated = 'true'; // Mark as animated
+                            const terminalOutput = document.getElementById('terminal-output');
+                            const downloadArea = document.getElementById('resume-download-area');
+
+                            const lines = [
+                                '<p><span class="text-gray-400">[ishant@portfolio ~]$</span> ./download-resume.sh</p>',
+                                '<p>Initializing download sequence...</p>',
+                                '<p>Fetching resume.pdf... <span class="text-emerald-400">[OK]</span></p>',
+                                '<p>Compiling qualifications... <span class="text-emerald-400">[OK]</span></p>',
+                                '<p>Verifying certifications... <span class="text-emerald-400">[OK]</span></p>',
+                                '<p class="text-gray-400">Status: <span class="text-emerald-400">Ready</span></p>'
+                            ];
+
+                            let i = 0;
+                            function printLine() {
+                                if (i < lines.length) {
+                                    terminalOutput.innerHTML += lines[i];
+                                    i++;
+                                    setTimeout(printLine, Math.random() * 400 + 150);
+                                } else {
+                                    // Animation finished
+                                    terminalOutput.innerHTML += '<p class="blinking-cursor"><span class="text-gray-400">[ishant@portfolio ~]$</span> </p>';
+                                    downloadArea.classList.remove('opacity-0');
+                                }
+                            }
+                            setTimeout(printLine, 500); // Start after a brief delay
+                        }
+                    }
+                });
+            }, {
+                threshold: 0.2 // Start animation when 20% is visible
+            });
+            scrollAnimations.forEach(el => observer.observe(el));
+
+            // Typing animation
+            const typingText = document.getElementById('typing-text');
+            const roles = ["Cybersecurity Analyst.", "Threat Hunter.", "SOC Specialist.", "SIEM Expert."];
+            let roleIndex = 0;
+            let charIndex = 0;
+            let isDeleting = false;
+
+            function type() {
+                const currentRole = roles[roleIndex];
+                if (isDeleting) {
+                    typingText.textContent = currentRole.substring(0, charIndex--);
+                } else {
+                    typingText.textContent = currentRole.substring(0, charIndex++);
+                }
+
+                if (!isDeleting && charIndex === currentRole.length + 1) {
+                    isDeleting = true;
+                    setTimeout(type, 2000); // Pause at end
+                } else if (isDeleting && charIndex === -1) {
+                    isDeleting = false;
+                    roleIndex = (roleIndex + 1) % roles.length;
+                    setTimeout(type, 500); // Pause before new word
+                } else {
+                    setTimeout(type, isDeleting ? 75 : 150);
+                }
+            }
+            type();
+
+
+            // Custom Cursor Logic - only for devices with a mouse
+            if (window.matchMedia("(pointer: fine)").matches) {
+                const cursorDot = document.getElementById('cursor-dot');
+                const cursorOutline = document.getElementById('cursor-outline');
+
+                window.addEventListener('mousemove', e => {
+                    cursorDot.style.display = 'block';
+                    cursorOutline.style.display = 'block';
+                    cursorDot.style.left = `${e.clientX}px`;
+                    cursorDot.style.top = `${e.clientY}px`;
+                    cursorOutline.style.left = `${e.clientX}px`;
+                    cursorOutline.style.top = `${e.clientY}px`;
+                });
+
+                document.querySelectorAll('a, button, [data-target]').forEach(el => {
+                    el.addEventListener('mouseenter', () => cursorOutline.classList.add('hover'));
+                    el.addEventListener('mouseleave', () => cursorOutline.classList.remove('hover'));
+                });
+            }
+            
+            // Animated background dots
+            const dotsContainer = document.getElementById('bg-dots-container');
+            const numDots = 50;
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+
+            for (let i = 0; i < numDots; i++) {
+                const dot = document.createElement('div');
+                dot.classList.add('bg-dot');
+                const x = Math.random() * viewportWidth;
+                const y = Math.random() * viewportHeight;
+                dot.style.left = `${x}px`;
+                dot.style.top = `${y}px`;
+                // Set random destination for animation
+                dot.style.setProperty('--tx', `${(Math.random() - 0.5) * 2 * viewportWidth}px`);
+                dot.style.setProperty('--ty', `${(Math.random() - 0.5) * 2 * viewportHeight}px`);
+                dotsContainer.appendChild(dot);
+            }
+
+            // Interactive Card Glow Logic
+            const glassCards = document.querySelectorAll('.glass-effect');
+            glassCards.forEach(card => {
+                card.addEventListener('mousemove', e => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    card.style.setProperty('--mouse-x', `${x}px`);
+                    card.style.setProperty('--mouse-y', `${y}px`);
+                });
+            });
+
+            // 3D Tilt Logic (for ABOUT card ONLY)
+            const tiltCard = document.querySelector('.tiltable');
+            if (tiltCard) {
+                tiltCard.addEventListener('mousemove', e => {
+                    const rect = tiltCard.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    const rotateX = (e.clientY - centerY) / 20; // Adjust for sensitivity
+                    const rotateY = (centerX - e.clientX) / 20; // Adjust for sensitivity
+                    tiltCard.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+                });
+
+                tiltCard.addEventListener('mouseleave', () => {
+                    // Reset transform on mouse leave
+                    tiltCard.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+
