@@ -2,7 +2,7 @@
   "name": "ishant-jaswal-portfolio",
   "private": true,
   "version": "0.0.0",
-  "homepage": "https://ishantjaswal03.github.io/pf/",
+  "homepage": "https://ishantjaswal03.github.io/portfolio/",
   "type": "module",
   "scripts": {
     "dev": "vite",
