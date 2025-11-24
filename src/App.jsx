@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import ScrollToTop from './components/ScrollToTop';
 import LiquidEther from './components/LiquidEther';
@@ -11,7 +11,7 @@ import Contact from './pages/Contact';
 
 function App() {
   return (
-    <HashRouter>
+    <Router>
       <ErrorBoundary>
         {/* Fixed LiquidEther Background */}
         <div style={{
@@ -45,7 +45,7 @@ function App() {
           </Routes>
         </Layout>
       </ErrorBoundary>
-    </HashRouter>
+    </Router>
   );
 }
 
